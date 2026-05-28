@@ -20,5 +20,6 @@ ES_HOSTS = os.getenv("ES_HOSTS", "")
 ES_USERNAME = os.getenv("ES_USERNAME") or None
 ES_PASSWORD = os.getenv("ES_PASSWORD") or None
 ES_API_KEY = os.getenv("ES_API_KEY") or None
+ES_PHYSICAL_INDEX = os.getenv("ES_PHYSICAL_INDEX", "articles_v1")
 ES_INDEX = os.getenv("ES_INDEX", "articles")
 ES_REQUEST_TIMEOUT = int(os.getenv("ES_REQUEST_TIMEOUT", "30"))

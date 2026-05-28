@@ -2,16 +2,37 @@ from __future__ import annotations
 
 from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import Response
 
-from app.test.schemas import ArticleListResponse, ClearIndexResponse, GenerateArticlesResponse
+from app.test.schemas import (
+    ArticleListResponse,
+    ClearIndexResponse,
+    FlushIndicesResponse,
+    GenerateArticlesResponse,
+    ListIndicesMappingsResponse,
+)
 from app.test.services.article_query import list_articles
-from app.test.services.index_admin import clear_index_data
-from app.test.services.sample_data import articles_to_csv, bulk_insert_articles, generate_articles
+from app.test.services.index_admin import clear_index_data, flush_all_indices, list_all_indices_mappings
+from app.retrieval.services.csv_template import generate_articles
+from app.test.services.sample_data import bulk_insert_articles
 from base.es import get_es_client
 from settings import ES_INDEX
 
 router = APIRouter()
+
+
+@router.get(
+    "/articles",
+    response_model=ArticleListResponse,
+    tags=["测试工具"],
+    summary="游标分页查询全部文献",
+    description="使用 Elasticsearch scroll 游标分页返回文献数据。首次请求不传 scroll_id，后续请求传入上一次返回的 scroll_id。",
+)
+async def list_articles_api(
+    page_size: int = Query(10, ge=1, le=100, description="每页返回数量，最大 100"),
+    scroll_id: str | None = Query(None, description="游标 ID，首次请求不传；后续仅传 scroll_id，page_size 以首次请求为准"),
+    es_client: Elasticsearch = Depends(get_es_client),
+) -> ArticleListResponse:
+    return ArticleListResponse.model_validate(list_articles(es_client=es_client, page_size=page_size, scroll_id=scroll_id))
 
 
 @router.post(
@@ -35,41 +56,36 @@ async def generate_articles_api(
     response_model=ClearIndexResponse,
     tags=["测试工具"],
     summary="清空索引数据",
-    description="一键删除默认索引中的全部文档，保留索引结构和 mapping。",
+    description="删除指定索引或别名中的全部文档，保留索引结构和 mapping。",
 )
 async def clear_index_api(
+    index_name: str = Query(ES_INDEX, description="索引或别名名称，默认 articles"),
     es_client: Elasticsearch = Depends(get_es_client),
 ) -> ClearIndexResponse:
-    return ClearIndexResponse.model_validate(clear_index_data(es_client=es_client))
+    return ClearIndexResponse.model_validate(clear_index_data(es_client=es_client, index_name=index_name))
 
 
-@router.get(
-    "/articles",
-    response_model=ArticleListResponse,
+@router.post(
+    "/index/flush",
+    response_model=FlushIndicesResponse,
     tags=["测试工具"],
-    summary="游标分页查询全部文献",
-    description="使用 Elasticsearch scroll 游标分页返回文献数据。首次请求不传 scroll_id，后续请求传入上一次返回的 scroll_id。",
+    summary="一键重建 ES 索引",
+    description="删除全部用户索引后，重建物理索引 articles_v1 并挂载别名 articles。",
 )
-async def list_articles_api(
-    page_size: int = Query(10, ge=1, le=100, description="每页返回数量，最大 100"),
-    scroll_id: str | None = Query(None, description="游标 ID，首次请求不传；后续仅传 scroll_id，page_size 以首次请求为准"),
+async def flush_indices_api(
     es_client: Elasticsearch = Depends(get_es_client),
-) -> ArticleListResponse:
-    return ArticleListResponse.model_validate(list_articles(es_client=es_client, page_size=page_size, scroll_id=scroll_id))
+) -> FlushIndicesResponse:
+    return FlushIndicesResponse.model_validate(flush_all_indices(es_client=es_client))
 
 
 @router.get(
-    "/csv/template",
+    "/indices",
+    response_model=ListIndicesMappingsResponse,
     tags=["测试工具"],
-    summary="下载 CSV 模板",
-    description="下载符合笔试题格式的 CSV 模板，authors 字段使用分号分隔。",
+    summary="查看全部索引及 mapping",
+    description="列出全部用户索引的名称、文档数、别名及 mapping 定义。",
 )
-async def download_csv_template_api(
-    count: int = Query(10, ge=0, le=10000, description="模板中的示例数据条数，0 表示仅返回表头"),
-) -> Response:
-    csv_content = articles_to_csv(generate_articles(count))
-    return Response(
-        content=csv_content,
-        media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="articles_template.csv"'},
-    )
+async def list_indices_mappings_api(
+    es_client: Elasticsearch = Depends(get_es_client),
+) -> ListIndicesMappingsResponse:
+    return ListIndicesMappingsResponse.model_validate(list_all_indices_mappings(es_client=es_client))

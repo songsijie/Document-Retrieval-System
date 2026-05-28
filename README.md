@@ -41,8 +41,8 @@ pip install -r requirements.txt
 3. 启动项目
 
 ```bash
-# Windows
-$env:APP_ENV="dev"
+# Windows(cmd)
+set APP_ENV=dev
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # macOS/Linux
@@ -148,8 +148,11 @@ Document-Retrieval-System/
 | `ES_USERNAME` | 用户名，可选 | - |
 | `ES_PASSWORD` | 密码，可选 | - |
 | `ES_API_KEY` | API Key，可选，优先级高于用户名密码 | - |
-| `ES_INDEX` | 文献索引名 | `articles` |
+| `ES_PHYSICAL_INDEX` | 文献物理索引名 | `articles_v1` |
+| `ES_INDEX` | 文献业务别名（读写统一走别名） | `articles` |
 | `ES_REQUEST_TIMEOUT` | 请求超时秒数 | `30` |
+
+启动时会创建物理索引 `articles_v1` 并挂载别名 `articles`。CSV 导入与检索均通过别名访问；mapping 迁移时 `old_index` 填物理索引名，`alias_name` 填 `articles`。
 
 CSV 导入和 mapping 迁移接口会写入或修改 Elasticsearch。
 
@@ -179,6 +182,7 @@ Redis 用于限流中间件。
 | GET | `/retrieval/inverted-index/search` | 单 term 查询 |
 | GET | `/retrieval/inverted-index/search-and` | 两个 term 的 AND 查询 |
 | DELETE | `/retrieval/inverted-index/documents/{doc_id}` | tombstone 软删除文档 |
+| GET | `/retrieval/csv/template` | 下载 CSV 导入模板 |
 | POST | `/retrieval/csv/load` | 上传 CSV 文件批量导入 ES |
 | POST | `/retrieval/migrations/pub-type-keyword` | reindex 并原子切换 alias |
 

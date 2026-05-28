@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from elasticsearch import Elasticsearch
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
+from fastapi.responses import Response
 
 from app.retrieval.schemas import (
     ArticleSearchResponse,
@@ -15,6 +16,7 @@ from app.retrieval.schemas import (
     YearAggregationItem,
 )
 from app.retrieval.services.csv_loader import load_csv_to_es
+from app.retrieval.services.csv_template import build_csv_template
 from app.retrieval.services.es_query import aggregate_by_year, filter_articles, search_articles
 from app.retrieval.services.inverted_index import InvertedIndex
 from app.retrieval.services.migration import migrate_pub_type_keyword
@@ -137,6 +139,22 @@ async def delete_inverted_index_document(doc_id: int) -> InvertedIndexWriteRespo
     return InvertedIndexWriteResponse(doc_id=doc_id, status="deleted")
 
 
+@router.get(
+    "/csv/template",
+    tags=["笔试题三：CSV → ES 批量加载"],
+    summary="下载 CSV 模板",
+    description="下载符合笔试题格式的 CSV 模板，authors 字段使用分号分隔。",
+)
+async def download_csv_template_api(
+    count: int = Query(10, ge=0, le=10000, description="模板中的示例数据条数，0 表示仅返回表头"),
+) -> Response:
+    return Response(
+        content=build_csv_template(count),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="articles_template.csv"'},
+    )
+
+
 @router.post(
     "/csv/load",
     response_model=CsvLoadResponse,
@@ -157,7 +175,7 @@ async def load_csv(
     response_model=MigrationResponse,
     tags=["笔试题三：CSV → ES 批量加载"],
     summary="pub_type keyword 迁移",
-    description="Mapping 迁移：新建 pub_type 为 keyword 的索引，reindex 后原子切换 alias。",
+    description="Mapping 迁移：从旧物理索引 reindex 到新物理索引，并将别名 articles 原子切换到新索引。示例 old_index=articles_v1, new_index=articles_v2, alias_name=articles。",
 )
 async def migrate_pub_type_keyword_api(
     request: MigrationRequest,

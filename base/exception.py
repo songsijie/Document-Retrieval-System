@@ -25,5 +25,11 @@ def create_custom_error(code: int, message: str):
     return CustomError(code, message)
 
 
-# 配置未找到
+# 未知错误
 unknown_error_exception = create_custom_error(default_error_code, "未知错误")
+
+# 索引不存在
+index_not_found_exception = create_custom_error("10001", "索引不存在")
+
+# 索引已存在
+index_already_exists_exception = create_custom_error("10002", "索引已存在")

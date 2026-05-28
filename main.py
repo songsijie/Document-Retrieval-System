@@ -16,9 +16,35 @@ from middleware.log import log_handler
 from middleware.rate_limit import rate_limit
 from middleware.response import response_handler
 from middleware.timeout import timeout_handler
-from settings import APP_NAME, ES_INDEX, IS_DEBUG, MIDDLEWARE_EXCLUDE_PATHS
+from settings import APP_NAME, ES_INDEX, ES_PHYSICAL_INDEX, IS_DEBUG, MIDDLEWARE_EXCLUDE_PATHS
 
 logger = logging.getLogger(__name__)
+
+API_DESCRIPTION = """
+文献检索系统
+
+## 模块说明
+
+- **笔试题一**：Elasticsearch 查询封装（全文检索、按年聚合、多条件过滤）
+- **笔试题二**：内存倒排索引（添加、单词查询、AND 查询、tombstone 软删）
+- **笔试题三**：CSV 流式导入 ES、mapping 迁移（reindex + alias 切换）
+- **测试工具**：索引管理、随机数据生成、文献游标查询（仅开发调试），例如:当不知道有哪些数据时，可以使用"文献游标查询"接口查询所有数据,需要重建es时,可以使用"一键重建 ES 索引"接口。
+
+## 索引约定
+
+- 物理索引：`articles_v1`
+- 业务别名：`articles`（读写默认走别名，可通过环境变量 `ES_PHYSICAL_INDEX` / `ES_INDEX` 配置）
+- 服务启动时会自动创建物理索引 `articles_v1` 并挂载别名 `articles`
+- 所有分页查询都使用深分页方案，通过 scroll_id 传递游标
+
+## 响应格式
+
+除 `/health` 等排除路径外，成功响应统一为 `{ "code": 0, "message": "ok", "data": ... }`。
+
+## 简答题
+
+答案见 `README.md` 中的 "简答题" 章节。
+"""
 
 
 @asynccontextmanager
@@ -27,7 +53,7 @@ async def lifespan(app: FastAPI):
     try:
         created = ensure_es_index(get_es_client())
         if created:
-            logger.info("Created Elasticsearch index: %s", ES_INDEX)
+            logger.info("Ensured Elasticsearch index %s with alias %s", ES_PHYSICAL_INDEX, ES_INDEX)
     except Exception as exc:
         logger.warning("Failed to ensure Elasticsearch index: %s", exc)
     yield
@@ -62,7 +88,7 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title=APP_NAME,
         version="1.0.0",
-        description=APP_NAME,
+        description=API_DESCRIPTION,
         routes=app.routes,
     )
 

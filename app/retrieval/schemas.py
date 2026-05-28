@@ -77,9 +77,9 @@ class CsvLoadResponse(BaseModel):
 class MigrationRequest(BaseModel):
     """pub_type keyword 迁移请求。"""
 
-    old_index: str = Field(..., description="旧索引名")
-    new_index: str = Field(..., description="新索引名")
-    alias_name: str = Field(..., description="需要切换的 alias 名称")
+    old_index: str = Field(default="articles_v1", description="旧物理索引名，如 articles_v1")
+    new_index: str = Field(default="articles_v2", description="新物理索引名，如 articles_v2")
+    alias_name: str = Field(default="articles", description="业务别名，默认 articles")
 
 
 class MigrationResponse(BaseModel):

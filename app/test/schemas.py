@@ -11,6 +11,25 @@ class ClearIndexResponse(BaseModel):
     deleted: int = Field(..., description="删除的文档数")
 
 
+class FlushIndicesResponse(BaseModel):
+    deleted_indices: list[str] = Field(default_factory=list, description="已删除的索引名列表")
+    count: int = Field(..., description="删除的索引数量")
+    recreated_index: str = Field(..., description="flush 后重建的物理索引名")
+    recreated_alias: str = Field(..., description="flush 后挂载的业务别名")
+
+
+class IndexMappingBucket(BaseModel):
+    index: str = Field(..., description="索引名")
+    doc_count: int = Field(..., description="文档总数")
+    aliases: list[str] = Field(default_factory=list, description="绑定的别名列表")
+    mappings: dict = Field(default_factory=dict, description="索引 mapping 定义")
+
+
+class ListIndicesMappingsResponse(BaseModel):
+    indices: list[IndexMappingBucket] = Field(default_factory=list, description="各索引 mapping 概览")
+    total_indices: int = Field(..., description="用户索引数量")
+
+
 class ArticleRecord(BaseModel):
     pmid: int = Field(..., description="文献 PMID")
     pub_year: int = Field(..., description="发表年份")
