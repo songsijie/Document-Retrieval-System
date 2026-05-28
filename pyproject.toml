@@ -1,0 +1,44 @@
+[project]
+name = "5py"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 150
+target-version = "py312"
+exclude = ["migrations", ".venv", "venv", ".vscode", ".git"]
+fix = true  # 允许自动修复（等效于 ruff --fix）
+
+[tool.ruff.lint]
+preview = true  # 启用实验性规则
+select = [
+    "E",   # Pycodestyle 错误
+    "F",   # Pyflakes
+    "I",   # isort（导入排序）
+    "B",   # Bug 预防
+    "W",   # 警告
+    "C",   # 复杂度
+    "N",   # PEP 8 命名约定
+    "UP",  # Pyupgrade（自动升级语法）
+    "PT",  # Pytest
+    "PTH", # 路径处理建议
+    "SIM", # 简化表达式
+    "C90", # 复杂度
+]
+ignore = [
+    "F403",
+    "B008",
+    "B904",
+    "E501",
+    "N805",
+    "SIM112",
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.format]
+quote-style = "double"  # 统一引号风格
+skip-magic-trailing-comma = false  # 跳过魔法尾随逗号
+line-ending = "auto"  # 自动检测行尾

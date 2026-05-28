@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    container_name: document-retrieval-api
+    environment:
+      APP_ENV: dev
+      ES_HOSTS: http://elasticsearch:9200
+      ES_INDEX: articles
+      CACHE_HOST: redis
+      CACHE_PORT: 6379
+      CACHE_DB: 0
+      CACHE_KEYPREFIX: document_retrieval
+    ports:
+      - "8000:80"
+    depends_on:
+      - elasticsearch
+      - redis
+
+  # 如果已有自己的elasticsearch,可以注释掉下面的elasticsearch服务,修改环境变量ES_HOSTS为你的elasticsearch地址
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.15
+    container_name: document-retrieval-es
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.http.ssl.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  # 如果已有自己的redis,可以注释掉下面的redis服务,修改环境变量CACHE_HOST为你的redis地址
+  redis:
+    image: redis:7-alpine
+    container_name: document-retrieval-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  es_data:
+  redis_data:
