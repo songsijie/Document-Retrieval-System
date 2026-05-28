@@ -2,16 +2,8 @@ services:
   app:
     build: .
     container_name: document-retrieval-api
-    environment:
-      APP_ENV: dev
-      ES_HOSTS: http://elasticsearch:9200
-      ES_INDEX: articles
-      CACHE_HOST: redis
-      CACHE_PORT: 6379
-      CACHE_DB: 0
-      CACHE_KEYPREFIX: document_retrieval
     ports:
-      - "8000:80"
+      - "8000:8000"
     depends_on:
       - elasticsearch
       - redis

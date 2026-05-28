@@ -32,6 +32,7 @@ ignore = [
     "E501",
     "N805",
     "SIM112",
+    "SIM105",  # 允许 try-except-pass，不强制 contextlib.suppress
 ]
 fixable = ["ALL"]
 

@@ -53,6 +53,7 @@ app.middleware("http")(timeout_handler)
 app.middleware("http")(log_handler)
 app.middleware("http")(exception_handler)
 
+
 # 自定义 OpenAPI 文档：非排除路径的响应展示统一包装格式。
 def custom_openapi():
     if app.openapi_schema:

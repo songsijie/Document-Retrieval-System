@@ -1,5 +1,5 @@
 # 使用python3.12.1-slim镜像(slim镜像比alpine镜像更小,更安全)
-FROM python:3.12.1-slim
+FROM docker.1ms.run/python:3.12.5-slim
 
 # 设置环境变量
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -21,10 +21,10 @@ RUN pip install --progress-bar off --no-cache-dir -r requirements.txt -i https:/
 COPY . /app
 
 # 暴露应用端口
-EXPOSE 80
+EXPOSE 8000
 
 # 设置应用环境变量
-ENV APP_ENV "prod"
+ENV APP_ENV "dev"
 
 # 运行应用
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

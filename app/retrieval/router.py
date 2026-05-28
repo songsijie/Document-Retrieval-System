@@ -39,9 +39,7 @@ async def search_articles_api(
     scroll_id: str | None = Query(None, description="游标 ID，首次请求不传；后续仅传 scroll_id，page_size 以首次请求为准"),
     es_client: Elasticsearch = Depends(get_es_client),
 ) -> ArticleSearchResponse:
-    return ArticleSearchResponse.model_validate(
-        search_articles(es_client=es_client, keyword=keyword, page_size=page_size, scroll_id=scroll_id)
-    )
+    return ArticleSearchResponse.model_validate(search_articles(es_client=es_client, keyword=keyword, page_size=page_size, scroll_id=scroll_id))
 
 
 @router.get(
@@ -151,9 +149,7 @@ async def load_csv(
     batch_size: int = Form(default=500, ge=1, description="bulk 每批写入数量"),
     es_client: Elasticsearch = Depends(get_es_client),
 ) -> CsvLoadResponse:
-    return CsvLoadResponse.model_validate(
-        load_csv_to_es(es_client=es_client, file_obj=file.file, batch_size=batch_size)
-    )
+    return CsvLoadResponse.model_validate(load_csv_to_es(es_client=es_client, file_obj=file.file, batch_size=batch_size))
 
 
 @router.post(

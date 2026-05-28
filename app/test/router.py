@@ -55,9 +55,7 @@ async def list_articles_api(
     scroll_id: str | None = Query(None, description="游标 ID，首次请求不传；后续仅传 scroll_id，page_size 以首次请求为准"),
     es_client: Elasticsearch = Depends(get_es_client),
 ) -> ArticleListResponse:
-    return ArticleListResponse.model_validate(
-        list_articles(es_client=es_client, page_size=page_size, scroll_id=scroll_id)
-    )
+    return ArticleListResponse.model_validate(list_articles(es_client=es_client, page_size=page_size, scroll_id=scroll_id))
 
 
 @router.get(

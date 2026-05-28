@@ -5,7 +5,6 @@ from typing import Any
 from elasticsearch import Elasticsearch
 
 from base.es_scroll import scroll_search
-from settings import ES_INDEX
 
 
 def list_articles(

@@ -13,7 +13,10 @@ def get_client_ip(request: Request) -> str:
 
 
 async def ip_filter(request: Request, call_next):
-    # 获取客户端 IP 地址
+    """IP 白名单过滤；ALLOWED_IPS 含 * 时放行所有 IP。"""
+    if "*" in ALLOWED_IPS:
+        return await call_next(request)
+
     client_ip = get_client_ip(request)
 
     if client_ip not in ALLOWED_IPS:
