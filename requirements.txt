@@ -4,3 +4,5 @@ elasticsearch==8.19.3
 redis==5.0.3
 python-dotenv==1.1.0
 python-multipart==0.0.20
+# ruff>=0.13.0
+# pre-commit>=3.0.0

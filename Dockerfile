@@ -1,5 +1,5 @@
 # 使用python3.12.1-slim镜像(slim镜像比alpine镜像更小,更安全)
-FROM docker.1ms.run/python:3.12.5-slim
+FROM docker.1ms.run/python:3.12.1-slim
 
 # 设置环境变量
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -16,6 +16,8 @@ RUN pip install --progress-bar off -U pip -i https://pypi.tuna.tsinghua.edu.cn/s
 RUN pip install --progress-bar off -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 60
 RUN pip install --progress-bar off -U wheel -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 60
 RUN pip install --progress-bar off --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 180
+# 如果使用清华源安装失败，可使用默认源安装
+# RUN pip install --progress-bar off --no-cache-dir -r requirements.txt  --timeout 180
 
 # 复制应用代码到容器
 COPY . /app

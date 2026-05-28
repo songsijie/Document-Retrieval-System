@@ -4,6 +4,10 @@ services:
     container_name: document-retrieval-api
     ports:
       - "8000:8000"
+    environment:
+      # 容器内用 Compose 服务名互联，如果elasticsearch和redis有自己的服务名，则需要修改环境变量CACHE_HOST和ES_HOSTS
+      CACHE_HOST: redis
+      ES_HOSTS: http://elasticsearch:9200
     depends_on:
       - elasticsearch
       - redis

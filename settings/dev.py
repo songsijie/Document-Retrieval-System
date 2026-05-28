@@ -15,7 +15,7 @@ MIDDLEWARE_EXCLUDE_PATHS = ["/docs", "/redoc", "/openapi.json", "/health"]
 # 限流排除路径
 RATE_LIMIT_EXCLUDE_PATHS = ["/docs", "/redoc", "/openapi.json", "/health"]
 # 允许的IP地址
-ALLOWED_IPS = [ip.strip() for ip in os.getenv("ALLOWED_IPS", "127.0.0.1").split(",") if ip.strip()]
+ALLOWED_IPS = [ip.strip() for ip in os.getenv("ALLOWED_IPS", "*").split(",") if ip.strip()]
 
 # Redis 相关配置
 CACHE_HOST = os.getenv("CACHE_HOST", "127.0.0.1")

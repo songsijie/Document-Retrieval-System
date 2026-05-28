@@ -8,7 +8,7 @@ SVR_PORT = int(os.getenv("SVR_PORT", "8000"))
 SVR_TIMEOUT = int(os.getenv("SVR_TIMEOUT", "10"))
 MIDDLEWARE_EXCLUDE_PATHS = ["/docs", "/redoc", "/openapi.json", "/health"]
 RATE_LIMIT_EXCLUDE_PATHS = ["/docs", "/redoc", "/openapi.json", "/health"]
-ALLOWED_IPS = [ip.strip() for ip in os.getenv("ALLOWED_IPS", "127.0.0.1").split(",") if ip.strip()]
+ALLOWED_IPS = [ip.strip() for ip in os.getenv("ALLOWED_IPS", "*").split(",") if ip.strip()]
 
 CACHE_HOST = os.getenv("CACHE_HOST", "127.0.0.1")
 CACHE_PORT = int(os.getenv("CACHE_PORT", "6379"))
