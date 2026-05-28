@@ -9,6 +9,11 @@
 - 基于 Elasticsearch 的文献全文检索、聚合、过滤、CSV 导入和 mapping 迁移。
 - 基于进程内内存单例的手写倒排索引，用于展示倒排索引的构建、查询、AND 查询和 tombstone 软删除能力。
 
+## 在线体验地址
+
+- http://drs.songsijie.cn/docs
+- http://songsijie.cn:8010/docs(当上面无法访问时,可尝试这个)
+
 ## 技术要求
 
 - Python >= 3.12
@@ -85,14 +90,22 @@ Document-Retrieval-System/
 ├── docker-compose.yml             # 本地编排（app + ES + Redis）
 │
 ├── app/                           # 业务应用
-│   └── retrieval/                 #   文献检索模块
+│   ├── retrieval/                 #   文献检索模块
+│   │   ├── router.py              #     API 路由
+│   │   ├── schemas.py             #     Pydantic 请求/响应模型
+│   │   └── services/              #     核心功能实现
+│   │       ├── es_query.py        #       ES 查询封装
+│   │       ├── inverted_index.py  #       手写倒排索引
+│   │       ├── csv_loader.py      #       CSV bulk 导入
+│   │       ├── csv_template.py    #       CSV 模板与示例数据生成
+│   │       └── migration.py       #       reindex 与 alias 切换
+│   └── test/                      #   测试工具模块（dev 环境）
 │       ├── router.py              #     API 路由
 │       ├── schemas.py             #     Pydantic 请求/响应模型
 │       └── services/              #     核心功能实现
-│           ├── es_query.py        #       ES 查询封装
-│           ├── inverted_index.py  #       手写倒排索引
-│           ├── csv_loader.py      #       CSV bulk 导入
-│           └── migration.py       #       reindex 与 alias 切换
+│           ├── article_query.py   #       scroll 游标分页查询
+│           ├── index_admin.py     #       索引管理（清空、flush、mapping）
+│           └── sample_data.py     #       批量写入示例数据
 │
 ├── base/                          # 基础库 & 工具
 │   ├── es.py                      #   Elasticsearch 客户端
